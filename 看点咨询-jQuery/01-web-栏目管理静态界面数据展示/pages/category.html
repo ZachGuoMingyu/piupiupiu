@@ -1,0 +1,102 @@
+<!-- 1.设置根div -->
+<div class="category">
+  <!-- 2.左侧树形目录区域 -->
+  <div class="category-tree">
+    树形结构
+  </div>
+
+  <!-- 3.右侧区域 -->
+  <div class="category-content">
+    <!-- 4.按钮操作区域 -->
+    <div class="category-option">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary">新增</button>
+      <!-- 批量删除按钮 -->
+      <button type="button" class="btn btn-danger">批量删除</button>
+    </div>
+
+    <!-- 5.表格区域 -->
+    <div class="category-table">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>栏目名称</th>
+            <th>父级栏目</th>
+            <th>描述</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+      </table>
+      <!-- 15.最开始写的时候就是一个表格 不要分开 后面分开是为了让表头固定 表列滑动 -->
+      <div class="category-table-content">
+        <table class="table table-bordered">
+          <tbody>
+            <!-- 没有进行到ajax请求数据获取节点时现在这里写，请求数据时把这里剪切放到下面去 -->
+            <!-- 
+                  <tr>
+                    <td><input type="checkbox" value=""></td>
+                    <td>栏目名称</td>
+                    <td>父级栏目</td>
+                    <td>描述</td>
+                    <td>
+                      搜索delete，pencil
+                      删除按钮
+                      <i class="fa fa-trash-o" aria-hidden="true" title="删除"></i>
+                      修改按钮
+                      <i class="fa fa-pencil-square-o" aria-hidden="true" title="修改"></i>
+                    </td>
+                  </tr> 
+                -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // 6.先输出一下 看jQuery是否生效
+  // console.log($('.category'));
+
+  // 8.执行函数 获取数据
+  findAllCategory()
+  // 7.获取栏目数据 遍历数据 插入节点 生成表格
+  function findAllCategory() {
+    // 9.每次添加节点之前，先清空节点
+    $('.category tbody').empty()
+    // 10.使用封装的ajax请求对应接口获取数据
+    myAjax('/manager/category/findAllCategory', 'get', {}, function (res) {
+      console.log(res);
+      // 11.遍历拿到的数据 res.data 所有的栏目数据
+      res.data.forEach(function (item) {
+        // 这里使用``(数字键1旁边的符号 这个符号的字符串可以换行)
+        // 把上面tbody里的数据直接剪切下来
+        // !!! 想里面插入值的时候  使用 `+ (要匹配的值) +`
+        var $str = $(`
+          <tr>
+            <td><input type="checkbox" value="`+item.id+`"></td>
+            <td>`+ item.name +`</td>
+            // !!! 数据里面有的有parent 有的没有parent 我们要进行一个判断 加()
+            <td>`+ (item.parent ? item.parent.name : '--') +`</td>
+            <td>`+ item.comment +`</td>
+            <td>
+              <i class="fa fa-trash-o" aria-hidden="true" title="删除"></i>
+              <i class="fa fa-pencil-square-o" aria-hidden="true" title="修改"></i>
+            </td>
+          </tr>
+        `)
+        // 12.追加到tbody中
+        $('.category tbody').append($str)
+
+        // 13.我们发现 我们的数据会超出我们所设置的内容区域 所以我们去样式里修改一下 减去option和外边距10px 去css里面.category-table设置
+
+        // 14.然后我们还想让表头固定不动 表列滚动 回到上面分割thead 和 tbody 
+      })
+    },
+    function (error) {
+      console.log(error);
+    })
+  }
+</script>

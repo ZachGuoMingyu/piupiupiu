@@ -1,0 +1,9 @@
+.home{
+  height: 100%;
+}
+/* 弄成一个四宫格 */
+.home>div{
+  width: 50%;
+  height: 50%;
+  float: left;
+}

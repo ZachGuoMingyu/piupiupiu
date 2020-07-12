@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- 引入BootStrap的css文件 -->
+  <link rel="stylesheet" href="../bootstrap-3.3.7/css/bootstrap.css">
+  <link rel="stylesheet" href="../bootstrap-3.3.7/css/bootstrap-theme.css">
+  <!-- 先不引入jQuery 打开浏览器 报错 因为BootStrap是需要jQuery支持的 -->
+  <!-- 引入jQuery文件 -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.12.4/jquery.js"></script>
+  <!-- 引入引入BootStrap的js文件 -->
+  <script src="../bootstrap-3.3.7/js/bootstrap.js"></script>
+</head>
+
+<body>
+  
+  <div class="container">
+    
+    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+      开始演示模态框
+    </button>
+    <button class="btn btn-primary btn-lg" id="show">
+      显示
+    </button>
+    <button class="btn btn-primary btn-lg" id="hide">
+      隐藏
+    </button>
+    <!-- 这里要加上 id="myModal" -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <p>One fine body&hellip;</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+  </div>
+  <script type="text/javascript">
+
+    // 显示按钮点击
+    $('#show').click(function () {
+      $('#myModal').modal('show')
+    })
+    // 隐藏按钮点击
+    $('#hide').click(function () {
+      $('#myModal').modal('hide')
+    })
+
+    // 模态框的一些事件
+    $('#myModal').on('show.bs.modal', function () {
+      alert("显示模态框");
+    });
+
+    $('#myModal').on('shown.bs.modal', function () {
+      alert("完全显示模态框");
+    });
+
+    $('#myModal').on('hide.bs.modal', function () {
+      alert("隐藏模态框");
+    });
+
+    $('#myModal').on('hidden.bs.modal', function () {
+      alert("完全隐藏模态框");
+    });
+
+  </script>
+</body>
+
+</html>
