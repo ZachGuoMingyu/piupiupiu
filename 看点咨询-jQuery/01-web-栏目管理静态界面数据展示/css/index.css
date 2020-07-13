@@ -16,6 +16,7 @@ html,body{
   height: 100%;
   width:220px;
   float: left;
+  /* 原型图里左侧背景颜色 */
   background-color: RGB(47, 65, 87);
   color:white;
 }
@@ -24,6 +25,7 @@ html,body{
   text-align: center;
   height: 50px;
   line-height: 50px;
+  /* 原型图里左侧头部颜色 */
   background-color: RGB(43, 47, 58);
   font-size:22px;
 }
@@ -46,6 +48,7 @@ html,body{
 /* 菜单选项hover样式 */
 .container-left nav li:hover{
   background-color: white;
+  /* 原型图里左侧背景颜色 */
   color:RGB(47, 65, 87);
 }
 /* 左侧菜单栏图标大小 */

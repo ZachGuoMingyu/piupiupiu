@@ -101,7 +101,7 @@
       // res.data = [{},{},{}] 后台返回来的数据内部存放的是栏目对象
       // result = [{},{},{}] 我们需要的是内部存放父栏目对象，父栏目对象有children属性里面放的是子栏目数组
 
-      // 1-过滤出所有的父栏目 如果parent为null
+      // 1-过滤出所有的父栏目 如果parent为null 就是父栏目
       var parent = res.data.filter(function (item) {
         // 返回item没有parent属性的
         return !item.parent
