@@ -1,0 +1,27 @@
+/* 整体样式 */
+.article{
+  height: 100%;
+}
+
+/* 头部左侧 */
+.article .header-left{
+  float: left;
+}
+/* 头部右侧 */
+.article .header-right{
+  float: right;
+  width: 700px;
+  border-bottom: none;
+  line-height: 34px;
+}
+.article .header-right *{
+  display: inline-block;
+}
+/* 头部右侧输入框 */
+.header-right input{
+    width: 200px;
+}
+/* 开始输入框和结束输入框 */
+#startTime,#endTime{
+    width: 120px;
+}

@@ -1,0 +1,376 @@
+<div class="category">
+  <!-- 左侧树形目录区域 -->
+  <div class="category-tree">
+    <!-- zTree树形结构(在demo里拷贝过来) -->
+    <ul id="category-tree" class="ztree"></ul>
+  </div>
+
+  <!-- 右侧区域 -->
+  <div class="category-content">
+    <!-- 按钮操作区域 -->
+    <div class="category-option">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary" id="category-add">新增</button>
+      <!-- 批量删除按钮 -->
+      <button type="button" class="btn btn-danger" id="category-batch-delete">批量删除</button>
+    </div>
+
+    <!-- 表格区域 -->
+    <div class="category-table">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>栏目名称</th>
+            <th>父级栏目</th>
+            <th>描述</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+      </table>
+      <!-- 最开始写的时候就是一个表格 不要分开 后面分开是为了让表头固定 表列滑动 -->
+      <div class="category-table-content">
+        <table class="table table-bordered">
+          <tbody>
+            <!-- 没有进行到ajax请求数据获取节点时现在这里写，请求数据时把这里剪切放到下面去 -->
+            <!-- 
+                  <tr>
+                    <td><input type="checkbox" value=""></td>
+                    <td>栏目名称</td>
+                    <td>父级栏目</td>
+                    <td>描述</td>
+                    <td>
+                      搜索delete，pencil
+                      删除按钮
+                      <i class="fa fa-trash-o" aria-hidden="true" title="删除"></i>
+                      修改按钮
+                      <i class="fa fa-pencil-square-o" aria-hidden="true" title="修改"></i>
+                    </td>
+                  </tr> 
+                -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 模态框 -->
+  <!-- id全部改为category-modal -->
+  <div class="modal fade" id="category-modal" tabindex="-1" role="dialog" aria-labelledby="category-modalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <!-- 关闭按钮 -->
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <!-- modal标题 -->
+          <h4 class="modal-title" id="category-modalLabel">Modal title</h4>
+        </div>
+        <div class="modal-body">
+
+          <!-- 表单 全局css样式 表单 水平排列表单 -->
+          <form class="form-horizontal">
+            <!-- 栏目名称 -->
+            <div class="form-group">
+              <!-- for要改 和 下面id一致 -->
+              <label for="category-name" class="col-sm-2 control-label">栏目名称</label>
+              <div class="col-sm-10">
+                <!-- type改为text id值也改-->
+                <input type="text" class="form-control" id="category-name" placeholder="栏目名称">
+              </div>
+            </div>
+            <!-- 父栏目下拉菜单 表单 被支持的控件 下拉列表 -->
+            <div class="form-group">
+              <!-- for要改 和 下面id一致 -->
+              <label for="category-parent" class="col-sm-2 control-label">父栏目</label>
+              <div class="col-sm-10">
+                <select id="category-parent" class="form-control">
+                  <!-- 父栏目里并不是固定的 我们要节点追加 -->
+                  <!-- 遍历一级栏目 -->
+                  <!-- 因为我们之前做树形结构的时候 已经把父栏目给筛选了出来 所以我们到findAll里面直接赋值就可以 -->
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <!-- for要改 和 下面id一致 -->
+              <label for="category-comment" class="col-sm-2 control-label">描述</label>
+              <div class="col-sm-10">
+                <!-- type改为text id值也改-->
+                <input type="text" class="form-control" id="category-comment" placeholder="描述">
+              </div>
+            </div>
+            
+          </form>
+
+        </div>
+        <!-- 修改按钮文本 -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="category-save">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 先输出一下 看jQuery是否生效
+  // console.log($('.category'));
+
+  // 所有的栏目数据 在findAllCategory中进行赋值
+  var categoryData = []
+
+  // 当前修改的栏目对象
+  var currentCategory = {}
+
+  // 执行函数 获取数据
+  findAllCategory()
+  // 获取栏目数据 遍历数据 插入节点 生成表格
+  function findAllCategory() {
+    // 每次添加节点之前，先清空节点
+    $('.category tbody').empty()
+    // 使用封装的ajax请求对应接口获取数据
+    myAjax('/manager/category/findAllCategory', 'get', {}, function (res) {
+      // 1.显示数据在表格中
+      console.log(res);
+
+      // 所有栏目的数据
+      categoryData = res.data
+
+      // 遍历拿到的数据 res.data 所有的栏目数据
+      res.data.forEach(function (item) {
+        // 这里使用``(数字键1旁边的符号 这个符号的字符串可以换行)
+        // 把上面tbody里的数据直接剪切下来
+        // !!! 想里面插入值的时候  使用 `+ (要匹配的值) +`
+
+        // !!!---- 开始增删改查之前 先把i标签包裹在span内设置类 然后再去修改样式
+        var $str = $(`
+          <tr>
+            <td><input type="checkbox" value="`+item.id+`"></td>
+            <td>`+ item.name +`</td>
+            // !!! 数据里面有的有parent 有的没有parent 我们要进行一个判断 加()
+            <td>`+ (item.parent ? item.parent.name : '--') +`</td>
+            <td>`+ item.comment +`</td>
+            <td>
+              <span class="category-delete"><i class="fa fa-trash-o" aria-hidden="true" title="删除"></i></span>
+              <span class="category-edit"><i class="fa fa-pencil-square-o" aria-hidden="true" title="修改"></i></span>
+            </td>
+          </tr>
+        `)
+        // 追加到tbody中
+        $('.category tbody').append($str)
+
+        // 我们发现 我们的数据会超出我们所设置的内容区域 所以我们去样式里修改一下 减去option和外边距10px 去css里面.category-table设置
+
+        // 然后我们还想让表头固定不动 表列滚动 回到上面分割thead 和 tbody 
+      })
+
+      // 2.将数据显示在树形结构中 因为我们要根据zTree的数据格式去处理 所以我们要把后台返回的数据进一步的进行处理
+      // res.data = [{},{},{}] 后台返回来的数据内部存放的是栏目对象
+      // result = [{},{},{}] 我们需要的是内部存放父栏目对象，父栏目对象有children属性里面放的是子栏目数组
+
+      // 1-过滤出所有的父栏目 如果parent为null
+      var parent = res.data.filter(function (item) {
+        // 返回item没有parent属性的
+        return !item.parent
+      })
+      // console.log(parent);
+      // 我们拿到了父栏目以后，开始对子栏目进行一个规整
+      // 遍历parent，拿到每一个父栏目的id，在res.data数组中找到对应的子栏目，放到父栏目对象的children数组中
+      parent.forEach(function (item) {
+        // item.id 父栏目id
+        // 取到所有的栏目对象 再次进行筛选 将结果放到item.children里(全部写完再加item.children)
+        item.children = res.data.filter(function (catrgoryItem) {
+          // catrgoryItem 每一个栏目对象
+          // 因为有的栏目对象为父栏目 所以他的parent对象为null 所以我们要先判断一下
+          if (catrgoryItem.parent) {
+            return catrgoryItem.parent.id == item.id
+          }else{
+            return false
+          }
+        })
+      })
+      // 打印parent看下结果
+      console.log(parent);
+      // 到此 我们规整完毕
+      // zTree的初始化 把arr替换成parent
+      // 设置第一个父栏目默认展开
+      parent[0].open = true
+      $.fn.zTree.init($("#category-tree"), {
+        view: {
+          showIcon: false
+        }
+      }, parent);
+
+
+      // 3.设置模态框中的父栏目遍历 追加select中的option
+      // 追加之前 先清空
+      $('#category-parent').empty()
+      // 先追加一个option节点
+      $('#category-parent').append('<option value="">请选择</option>')
+      // 遍历parent
+      parent.forEach(function (item) {
+        // 将id值和父栏目名称插入
+        var $option = $('<option value="'+item.id+'">'+item.name+'</option>')
+        // 追加节点option
+        $('#category-parent').append($option)
+      })
+
+    },
+    function (error) {
+      console.log(error);
+    })
+  }
+
+  // 单个删除 我们使用事件代理去做 选中category-table-content父元素 让category-delete做一个代理
+  $('.category-table-content').on('click','.category-delete', function () {
+    // alert(1)
+    // 要实现删除 我们先要知道我们所点击这一行的id值 当前的id是存放在checkbox中的 所以我们要通过当前点击这一行的checkbox 来找到对应的id值 所以我们要找到对应的tr 找到里面checkbox的value值 就能获取到当前要删除的id
+    // 获取要删除的id closest() 方法获得匹配选择器的第一个祖先元素
+    var id = $(this).closest('tr').find('[type=checkbox]').val()
+    // alert(id)
+    // 加是否要删除提示 这里我们使用confirm来实现
+    var result = confirm('是否要删除？')
+    if (result) {
+      // 删除 与后台进行数据交互
+      myAjax('/manager/category/deleteCategoryById', 'get', {id:id}, function (res) {
+        // 我们感觉res里的status进行判断
+        if (res.status == 200) {
+          alert('删除成功')
+          // 删除成功会更新页面数据
+          findAllCategory()
+        }else{
+          alert('删除失败')
+        }
+      },
+      function (error) {
+        alert('删除失败')
+      })
+    }
+  })
+
+  // 批量删除 批量删除按钮设置id category-batch-delete
+  $('#category-batch-delete').click(function () {
+    // 获取用户选中的复选框按钮的id，数组
+    var $ids = $('.category-table-content :checkbox:checked').map(function (index, item) {
+      return item.value
+    })
+    // jQuery对象转数组
+    var ids = $ids.toArray()
+    // 这里做个判断 如果我们没有选的时候 那么ids.length的长度就是0 
+    if (ids.length>0) {
+      // 询问是否删除数据
+      var result = confirm('是否确认删除')
+      if (result) {
+        // 进行批量删除操作 参数我们要转成字符串
+        myAjax('/manager/category/batchDeleteCategory', 'post', {ids: ids.toString()}, function (res) {
+          if (res.status == 200) {
+            alert('删除成功')
+            findAllCategory()
+          }else{
+            alert('删除失败')
+            // 删除失败的时候 我们设置选中取消 清空用户选择的checkbox
+            $('.category-table-content :checkbox').prop('checked', false)
+          }
+        },function (error) {
+          alert('删除失败')
+          // 删除失败的时候 我们设置选中取消 清空用户选择的checkbox
+          $('.category-table-content :checkbox').prop('checked', false)
+        })
+      }
+    }else{
+      alert('请勾选要删除的数据')
+    }
+  })
+
+  // 新增 给新增按钮添加id category-add 设置模态框标题 清空内部表单内容 显示模态框
+  $('#category-add').click(function () {
+    // 3.设置当前新增的对象 因为我们是新增 所以所有的信息都是空的
+    currentCategory = {}
+
+    // !!!在这里开始-----------------------------------------
+    // 4.清空表格数据 我们再次点击的时候要将之前的数据清空
+    // 清空栏目名称 设置为空
+    $('#category-name').val('')
+    // 清空父栏目
+    $('#category-parent').val('')
+    // 清空描述
+    $('#category-comment').val('')
+
+    // 1.设置modal标题
+    $('#category-modalLabel').text('新增栏目信息')
+    // 2.显示模态框
+    $('#category-modal').modal('show')
+  })
+
+  // 新增和修改我们使用同一个模态框
+  // 修改 和单个删除类似 我们这里也使用事件代理
+  $('.category-table-content').on('click', '.category-edit', function () {
+    // 3.修改 我们也要获取到当前修改栏目的id
+    var id = $(this).closest('tr').find('[type=checkbox]').val()
+    // 4.通过id获取当前修改的对象，要去所有的栏目数组中进行过滤 我们去到上面给一个categoryData接收所有的栏目数据
+    // 5.当前修改的栏目对象我们也在上面声明一下
+    currentCategory = categoryData.filter(function (item) {
+      // id要和我们要修改的id保持一致
+      return item.id == id
+    })[0]
+    // 6.去新增里也设置一下当前修改的栏目对象 currentCategory
+    // 7.将栏目对象中的数据设置到模态框的表单中 接下来开始设置表单
+
+    // 修改在这里开始继续---------
+    // 8.修改 我们要将我们要修改的栏目已有的信息显示出来 并且进行修改
+    // 栏目名称 上面筛选出来的currentCategory 我们直接可以使用
+    $('#category-name').val(currentCategory.name)
+    // 父栏目 因为我们有的栏目parent为空  所以我们要判断一下
+    $('#category-parent').val(currentCategory.parent ? currentCategory.parent.id : '')
+    // 描述
+    $('#category-comment').val(currentCategory.comment)
+
+    // 1.设置modal标题
+    $('#category-modalLabel').text('修改栏目信息')
+    // 2.显示模态框
+    $('#category-modal').modal('show')
+  })
+
+
+  // 保存 模态框中的确定按钮 获取数据->验证数据->访问后台更新或保存->更新页面中的数据->关闭模态框
+  $('#category-save').click(function () {
+    // 获取表单数据 这里是获取值 所以val()没有参数
+    var name = $('#category-name').val()
+    // 获取父栏目数据
+    var parentId = $('#category-parent').val()
+    // 获取描述数据
+    var comment = $('#category-comment').val()
+
+    // 这里面后台提供了一个接口来进行修改或新增 如果id为空 就是新增 如果id有值 就是修改 swagger描述有问题
+    // 验证数据 这里我们验证name和comment 这两个值不能为空 其他参数 都是序号 我们不用处理
+    if (name && comment) { //如果name和comment都有值 我们就进行接下来的操作
+      // 封装数据，保存
+      var obj = {
+        // 在上面声明的当前修改的栏目对象 可以取到当前点击的id值
+        id: currentCategory.id, //在新增里一定要把currentCategory = {}设置为空对象 因为新增是没有id的 修改是有id的
+        name: name,
+        comment:comment,
+        no:null, //这里我们设置一个null就行
+        parentId: parentId
+      }
+      // 保存或更新数据
+      myAjax('/manager/category/saveOrUpdateCategory', 'post', obj, function (res) {
+        if (res.status == 200) {
+          // 更新页面数据
+          findAllCategory()
+          // 关闭模态框
+          $('#category-modal').modal('hide')
+        }else{
+          alert('保存失败')
+        }
+      },
+      function (error) {
+        alert('保存失败')
+      })
+    }else{ //如果name和comment有一个没有输 我们要提示一下
+      alert('请输入栏目名称和栏目描述')
+    }
+  })
+</script>

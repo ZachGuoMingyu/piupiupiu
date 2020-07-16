@@ -1,0 +1,20 @@
+<div class="article">
+  <div class="header-left">
+    <button type="button" class="btn btn-primary" id="article-add">新增</button>
+    <button type="button" class="btn btn-danger" id="article-batch-del">批量删除</button>
+  </div>
+  <div class="header-right">
+    <span>选择日期</span>
+    <input type="text" value="" id="startTime" class="form-control">
+    ~
+    <input type="text" value="" id="endTime" class="form-control">
+    <input type="text" value="" id="keywords" class="form-control">
+    <button class="btn btn-primary" id="serachBtn">搜索</button>
+    <button class="btn btn-primary" id="reset">重置</button>
+  </div>
+</div>
+<script>
+  // 日期选择器
+  $('#startTime').fdatepicker();
+  $('#endTime').fdatepicker();
+</script>

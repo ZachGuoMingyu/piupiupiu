@@ -1,0 +1,91 @@
+/* 栏目管理页面的样式 */
+/* 设置表格文本居中 */
+.category table th,td{
+  text-align: center;
+}
+/* 左侧树形结构区域 */
+.category-tree{
+  width: 160px;
+  height: 100%;
+  border: 1px solid #ccc;
+  float: left;
+}
+/* 右侧区域 */
+.category-content{
+  width: calc(100% - 160px);
+  height: 100%;
+  float: right;
+  /* 增加内边距 和右边有个距离*/
+  padding-left: 10px;
+}
+/* 表格样式 */
+.category-table{
+  /* 让表格距离上边按钮有个距离 */
+  margin-top: 10px;
+
+  /* 处理完数据再来设置这个 */
+  height: calc(100% - 34px - 10px);
+}
+
+/* 设置表格内容滚动 头部不滚动 处理完数据再来设置这个*/
+.category-table-content{
+  /* 处理完数据再来设置这个 这里减去的是表头的高度*/
+  height: calc(100% - 38px);
+  /* 在竖直方向产生滚动条 */
+  overflow-y: scroll;
+}
+
+/* 取消表头和表列的距离 处理完数据再来设置这个 */
+.category-table .table{
+  margin-bottom: 0;
+}
+
+/* 但是我们发现列的宽度不一样 所以我们来设置一下 一个一个设置*/
+/* 设置表头的第一个 和 表列的第一个宽度相同 下面以此类推 */
+.category-table .table th:first-child,
+.category-table .table td:first-child{
+  width: 50px;
+}
+.category-table .table th:nth-child(2),
+.category-table .table td:nth-child(2){
+  width: 150px;
+}
+.category-table .table th:nth-child(3),
+.category-table .table td:nth-child(3){
+  width: 200px;
+}
+.category-table .table th:nth-child(4),
+.category-table .table td:nth-child(4){
+    width: 500px;
+}
+.category-table .table th:last-child,
+.category-table .table td:last-child{
+  /* 最后一个宽度我们就不设置了 让它自由扩充宽度 */
+}
+
+/* 设置操作里面两个按钮的样式 */
+/* 换了span标签后  把i标签换为span */
+.category-table .table span:first-child{
+  color: #d9534f;
+  margin-right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.category-table .table span:last-child{
+  color: #337ab7;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* 树形结构样式设置 */
+#category-tree{
+  margin-top: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: none;
+}
+
+
+
+

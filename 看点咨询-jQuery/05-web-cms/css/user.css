@@ -1,0 +1,10 @@
+.user{
+  height: 100%;
+}
+
+/* 设置a标签样式 */
+.user .nav a{
+  color: rgb(55, 123, 181);
+  text-decoration: none;
+  font-size: 15px;
+}
