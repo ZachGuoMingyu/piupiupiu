@@ -1,0 +1,346 @@
+<!-- 设置根div -->
+<div class="category">
+  <!-- 左侧树形目录区域 -->
+  <div class="category-tree">
+    <!-- ztree的树形结构 -->
+    <ul id="category-tree" class="ztree"></ul>
+  </div>
+  <!-- 右侧区域 -->
+  <div class="category-content">
+    <!-- 按钮操作区域 -->
+    <div class="category-option">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary" id="category-add">新增</button>
+      <!-- 批量删除按钮 -->
+      <button type="button" class="btn btn-danger" id="category-batch-delete">批量删除</button>
+    </div>
+    <!-- 表格操作区域 -->
+    <div class="category-table">
+      <!-- 表头部分 -->
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>栏目名称</th>
+            <th>父级栏目</th>
+            <th>描述</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+      </table>
+      <!-- 表列部分 -->
+      <div class="category-table-content">
+        <table class="table table-bordered">
+          <tbody>
+            <!-- 之前表列内容区域  静态布局-->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模态框 -->
+  <!-- Modal -->
+  <div class="modal fade" id="category-modal" tabindex="-1" role="dialog" aria-labelledby="category-modalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <!-- 模态框头部 -->
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <!-- modal标题 -->
+          <h4 class="modal-title" id="category-modalLabel">Modal title</h4>
+        </div>
+        <!-- 模态框体部 -->
+        <div class="modal-body">
+          <!-- 表单部分 -->
+          <form class="form-horizontal">
+
+            <!-- 栏目名称 -->
+            <div class="form-group">
+              <label for="category-name" class="col-sm-2 control-label">栏目名称</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="category-name" placeholder="请输入栏目名称">
+              </div>
+            </div>
+            <!-- 父栏目 -->
+            <div class="form-group">
+              <label for="category-parent" class="col-sm-2 control-label">父栏目</label>
+              <div class="col-sm-10">
+                <select class="form-control" id="category-parent">
+                  <!-- <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option> -->
+                </select>
+              </div>
+            </div>
+            <!-- 描述 -->
+            <div class="form-group">
+              <label for="category-comment" class="col-sm-2 control-label">描述</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="category-comment" placeholder="请输入描述">
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+        <!-- 模态框底部 -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="category-save">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<script>
+
+  // 所有的栏目数据
+  var categoryData = []
+
+  // 当前修改或新增的对象
+  var currentCategory = {}
+
+  // 执行函数 获取数据
+  findAllCategory()
+  // 获取所有栏目数据 遍历数据 插入节点
+  function findAllCategory() {
+    // 每次插入节点之前 ，都要先清空节点
+    $('.category tbody').empty()
+
+    // 使用封装的ajax请求获取对应接口的数据
+    myAjax('/manager/category/findAllCategory', 'get', {}, function (res) {
+      console.log(res.data);
+
+      // 给所有栏目数据进行赋值
+      categoryData = res.data
+
+      // 拿到我们需要的数据进行处理，通过节点插入显示到表格上
+      // 遍历拿到的数据 res.data 所有的栏目数据
+      res.data.forEach(function (item) {
+        // 插入节点操作
+        var $str = $(`
+          <tr>
+            <td><input type="checkbox" value="`+ item.id + `"></td>
+            <td>`+ item.name + `</td>
+            // 数据里有的有parent 有的没有parent 我们要进行一个判断 表达式 ()
+            <td>`+ (item.parent ? item.parent.name : '--') + `</td>
+            <td>`+ item.comment + `</td>
+            <td>
+              <span class="category-delete"><i class="fa fa-trash" title="删除"></i></span>
+              <span class="category-edit"><i class="fa fa-pencil" title="修改"></i></span>
+            </td>
+          </tr>
+        `)
+        // 插入节点 追加到tbody中
+        $('.category tbody').append($str)
+      })
+
+      // 2.将数据显示在树形结构中 根据ztree的数据格式去处理我们已有的数据 
+      // res.data = [{},{},{}] 后台返回回来的数据内部存放的是栏目对象
+      // result = [{},{},{}] 我们需要的是内部存放父栏目队形，父栏目对象有children属性里面放的是子栏目数组
+
+      // 过滤出所有的父栏目  如果parent为null 就是父栏目
+      var parent = res.data.filter(function (item) {
+        // 返回item的parent属性为mull
+        return !item.parent
+      })
+
+      // 我们拿到了父栏目以后，开始对子栏目进行一个规整
+      // 遍历parent 拿到每一个父栏目的id，在res.data数组中找到对应的子栏目，放到父栏目对象的children数组中
+      parent.forEach(function (item) {
+        // item.id 父栏目的id
+        // 取到所有栏目对象 再次进行筛选 将匹配的结果放到item.children里
+        item.children = res.data.filter(function (categoryItem) {
+          //categoryItem 每一个栏目对象
+          // 因为有的栏目对象为父栏目 所以他的parent属性为null 所以我们要先判断一下
+          if (categoryItem.parent) {
+            return categoryItem.parent.id == item.id
+          }else{
+            return false
+          }
+        })
+      })
+      console.log(parent);
+      // 默认展开第一个
+      parent[0].open = true
+      $.fn.zTree.init($("#category-tree"), {
+          view: {
+            showIcon: false
+          }
+        }, parent);
+
+      // 设置模态框中的父栏目遍历 追加select中的option
+      // 追加之前 清空节点
+      $('#category-parent').empty()
+      // 先追加一个节点
+      $('#category-parent').append('<option value="">请选择</option>')
+      // 遍历parent 追加父栏目
+      parent.forEach(function (item) {
+        // 将id值和父栏目名称插入到我们的select标签中
+        var $option = $('<option value="'+item.id+'">'+item.name+'</option>')
+        // 追加节点option
+        $('#category-parent').append($option)
+      })
+
+
+      }, function (error) {
+      console.log(error);
+    })
+  }
+
+  // 单个删除 我们这里使用事件代理来处理
+  $('.category-table-content').on('click', '.category-delete', function () {
+    // 要实现删除，我们需要做哪些事情？
+    // 1.要知道如何获取id？ 当前的id是存放在checkbox的value中 所以我们要通过当前点击这一行的checkbox 来找到对应的id值 所以我们要找到对应的tr 找到里面的checkbox的value值
+
+    // closest() 获取当前删除的id
+    var id = $(this).closest('tr').find('[type=checkbox]').val()
+    
+    // 实现单个删除操作了
+    var result = confirm('是否要删除？')
+    // console.log(result);
+    if (result) {
+      // 删除操作 有后台进行数据交互
+      myAjax('/manager/category/deleteCategoryById', 'get', {id: id}, function (res) {
+        if (res.status == 200) {
+          alert('删除成功')
+          // 删除成功之后，刷新页面数据
+          findAllCategory()
+        }else{
+          alert('删除失败')
+        }
+      },function (error) {
+        console.log(error);
+          alert('删除失败')
+      })
+    }
+
+  })
+
+  // 批量删除
+  $('#category-batch-delete').click(function () {
+    // 获取用户选中的复选框按钮的id 数组
+    var $ids = $('.category-table-content :checkbox:checked').map(function () {
+      return this.value
+    })
+    // jQuery对象转数组
+    var ids = $ids.toArray()
+    // 这里做个判断 如果有事我们并没有选择编号 那么ids.length的长度就是0
+    if (ids.length > 0) {
+      // 询问是否删除数据
+      var result = confirm('是否确认删除')
+      if (result) {
+        // 进行批量删除操作 
+        myAjax('/manager/category/batchDeleteCategory', 'post', {ids: ids.toString()}, function (res) {
+          if (res.status == 200) {
+            alert('删除成功')
+            // 删除成功之后，刷新页面数据
+            findAllCategory()
+          } else {
+            alert('删除失败')
+            $('.category-table-content :checkbox').prop('checked', false)
+          }
+        }, function (error) {
+            alert('删除失败')
+            $('.category-table-content :checkbox').prop('checked', false)
+        })
+      }else{
+        // 取消删除的时候 清空用户选择的checkbox
+        $('.category-table-content :checkbox').prop('checked', false)
+      }
+    }else{
+      alert('请勾选要删除的数据')
+    }
+  })
+
+  // 新增
+  $('#category-add').click(function () {
+    // 3.设置当前新增的对象 因为是新增 所以所有的信息都是空的
+    currentCategory = {}
+    // 4.清空数据表格
+    // 栏目名称 上面筛选出来的currentCategory
+    $('#category-name').val('')
+    // 父栏目 
+    $('#category-parent').val('')
+    // 描述
+    $('#category-comment').val('')
+
+    // 1.设置modal标题
+    $('#category-modalLabel').text('新增栏目信息')
+    // 2.显示模态框
+    $('#category-modal').modal('show')
+  })
+
+  // 修改 使用事件代理来处理
+  $('.category-table-content').on('click', '.category-edit', function () {
+    
+    // 3.修改 我们也要获取到当前的修改栏目的id
+    var id = $(this).closest('tr').find('[type=checkbox]').val()
+    // 4.通过id获取当前修改的对象，要去所有的栏目数组中进行过滤
+    // 5.使用当前要修改的对象
+    currentCategory = categoryData.filter(function (item) {
+      // id要和我们修改的id保持一致
+      return item.id == id
+    })[0]
+    
+    // 6.将我们要修改的栏目的已有的信息显示出来，并且进行修改
+    // 栏目名称 上面筛选出来的currentCategory
+    $('#category-name').val(currentCategory.name)
+    // 父栏目 
+    $('#category-parent').val(currentCategory.parent ? currentCategory.parent.id : '')
+    // 描述
+    $('#category-comment').val(currentCategory.comment)
+
+    // 1.设置modal标题
+    $('#category-modalLabel').text('修改栏目信息')
+    // 2.显示模态框
+    $('#category-modal').modal('show')
+  })
+
+  // 提交操作 当我们点击模态框中的确定按钮时  获取数据->验证数据->访问后台更新或保存->更新页面中的数据->关闭模态框
+  $('#category-save').click(function () {
+    // 1.获取表单数据
+    // 栏目名称
+    var name = $('#category-name').val()
+    // 父栏目
+    var parentId = $('#category-parent').val()
+    // 描述数据
+    var comment = $('#category-comment').val()
+
+    // 验证数据
+    if (name && comment) {
+      // 封装数据，保存操作
+      var obj = {
+        id: currentCategory.id,
+        name: name,
+        comment: comment,
+        no: null,
+        parentId: parentId
+      }
+      // 保存或更新
+      myAjax('/manager/category/saveOrUpdateCategory', 'post', obj, function (res) {
+        if (res.status == 200) {
+          alert(res.message)
+          // 更新页面数据
+          findAllCategory()
+          // 关闭模态框
+          $('#category-modal').modal('hide')
+        }else{
+          alert('失败')
+        }
+      },function (error) {
+        alert('失败') 
+      })
+    }else{
+      alert('请输入栏目名称或栏目描述')
+    }
+
+  })
+
+</script>

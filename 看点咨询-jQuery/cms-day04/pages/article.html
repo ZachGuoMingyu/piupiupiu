@@ -1,0 +1,276 @@
+<div class="article">
+  <!-- 头部区域 -->
+  <div class="article-header">
+    <!-- 头部左侧 -->
+    <div class="header-left">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary" id="article-add">新增</button>
+      <!-- 批量删除按钮 -->
+      <button type="button" class="btn btn-danger" id="article-batch-del">批量删除</button>
+    </div>
+    <!-- 头部右侧 -->
+    <div class="header-right">
+      <!-- 标题 -->
+      <span>选择日期:</span>
+      <!-- 开始日期 -->
+      <input type="text" id="startTime" value="" class="form-control" placeholder="开始日期">
+      ~
+      <!-- 结束日期 -->
+      <input type="text" id="endTime" value="" class="form-control" placeholder="结束日期">
+      <!-- 搜索框 -->
+      <input type="text" id="keywords" value="" class="form-control" placeholder="请输入标题或关键字">
+      <!-- 搜索按钮 -->
+      <button type="button" class="btn btn-primary" id="serachBtn">搜索</button>
+      <!-- 重置按钮 -->
+      <button type="button" class="btn btn-default" id="reset">重置</button>
+    </div>
+  </div>
+  
+  <!-- 表格区域 -->
+  <div class="article-content">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>编号</th>
+          <th>文章标题</th>
+          <th>所属栏目</th>
+          <th>作者</th>
+          <th>发布时间</th>
+          <th>阅读次数</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- <tr>
+          <td>编号</td>
+          <td>文章标题</td>
+          <td>所属栏目</td>
+          <td>作者</td>
+          <td>发布时间</td>
+          <td>阅读次数</td>
+          <td>状态</td>
+          <td>操作</td>
+        </tr> -->
+      </tbody>
+    </table>
+  </div>
+  <!-- 模态框 -->
+  <div class="modal fade" id="articleModal" tabindex="-1" role="dialog" aria-labelledby="articleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="articleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="article-title">文章标题</label>
+              <input type="email" class="form-control" id="article-title" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="article-parent">所属栏目</label>
+              <select class="form-control" id="article-parent">
+  
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="article-content">正文</label>
+              <textarea class="form-control" rows="3" id="article-content"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="saveBtn">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 分页 -->
+  <div id="myPage1" class="demo"></div>
+</div>
+<script>
+  // 开始日期选择器
+  $('#startTime').fdatepicker()
+  // 结束日期选择器
+  $('#endTime').fdatepicker()
+
+  // 定义id
+  var id;
+
+  // 查询所有文章
+  // 查询所有文章
+  findAllArticle(0);
+  function findAllArticle(page){
+    myAjax('/manager/article/findArticle','get',{page:page,pageSize:10},function(res){
+      $('tbody').empty();
+      res.data.list.forEach(function(item){
+        var newTr = $(`
+          <tr>
+            <td><input type="checkbox" value="`+item.id+`"></td>
+            <td>`+item.title+`</td>
+            <td>`+(item.category ? item.category.name : '---')+`</td>
+            <td>`+(item.author ? item.author.username : '佚名')+`</td>
+            <td>`+item.publishtime+`</td>
+            <td>`+item.readtimes+`</td>
+            <td>`+(item.status == '审核通过' ? item.status : '<button class="btn btn-info passBtn btn-sm">通过</button>')+`</td>
+            <td style="text-align: center;">
+              <span class="category-delete"><i class="fa fa-trash" title="删除"></i></span>
+              <span class="category-edit"><i class="fa fa-pencil" title="修改"></i></span>
+            </td>
+          </tr>
+        `)
+        $('tbody').append(newTr)
+      })
+      $("#myPage1").sPage({
+          page:res.data.page+1,
+          pageSize:res.data.pageSize,
+          total:res.data.total,
+          prevPage:"←",
+          nextPage:"→",
+          backFun:function(page){
+            findAllArticle(page-1)
+          }
+      });
+    }) 
+  }
+
+  // 审核文章 事件代理
+  $('.table').on('click', '.passBtn', function () {
+    // 获取要审核的id
+    var id = $(this).closest('tr').find('[type=checkbox]').val();
+    // 审核  与后台进行数据交互
+    myAjax('/manager/article/checkArticle', 'get', {
+      id:id,
+      status:'审核通过'
+    }, function (res) {
+      if (res.status == 200) {
+        alert(res.message);
+        // 更新页面的数据
+        findAllArticle(0);
+      } else {
+        alert('审核失败');
+      }
+    }, function (err) {
+      alert('审核失败');
+    });
+  });
+  // 查询所有栏目
+  findAllCategory();
+  function findAllCategory(){
+    myAjax('/manager/category/findAllCategory','get',{},function(res){
+      $('tbody').empty();
+      res.data.forEach(function(item){
+        var newOption = $(`
+          <option value="`+item.id+`">`+item.name+`</option>  
+        `)
+        $('#article-parent').append(newOption)
+      })
+    })
+  }
+
+  // 新增
+  $('#article-add').click(function(){
+    var name = $('#article-name').val('');
+    var content = $('#article-content').val('');
+    $('#articleModalLabel').text('发布文章')
+    $('#articleModal').modal('show')
+  })
+
+  // 保存
+  $('#saveBtn').click(function(){
+    var title = $('#article-title').val();
+    var liststyle = true;
+    var categoryId = $('#article-parent').val();
+    var content = $('.w-e-text').text();
+    if(id){
+      var obj = {
+        id:id,
+        title:title,
+        liststyle:liststyle,
+        categoryId:categoryId,
+        content:content,
+      }
+    } else {
+      var obj = {
+        title:title,
+        liststyle:liststyle,
+        categoryId:categoryId,
+        content:content,
+      }
+    }
+    console.log(obj);
+    myAjax('/manager/article/saveOrUpdateArticle','post',obj,function(res){
+      $('#articleModal').modal('hide')
+      alert('发布成功！')
+      findAllArticle(0)
+      $("#myPage1").sPage({
+          page:res.data.page+1,
+          pageSize:res.data.pageSize,
+          total:res.data.total,
+          prevPage:"←",
+          nextPage:"→",
+          backFun:function(page){
+            findAllArticle(page-1)
+          }
+      });
+    })
+  })
+
+  // 搜索
+  $('#serachBtn').click(function(){
+    $('tbody').empty();
+    var startTime = $('#startTime').val();
+    var endTime = $('#endTime').val();
+    var keywords = $('#keywords').val();
+    myAjax('/manager/article/findArticle','get',{
+      page:0,
+      pageSize:10,
+      beginTime:startTime,
+      endTime:endTime,
+      keywords:keywords
+    },function(res){
+      res.data.list.forEach(function(item){
+        var newTr = $(`
+          <tr>
+            <td><input type="checkbox" value="`+item.id+`"></td>
+            <td>`+item.title+`</td>
+            <td>`+(item.category ? item.category.name : '---')+`</td>
+            <td>`+(item.author ? item.author.username : '')+`</td>
+            <td>`+item.publishtime+`</td>
+            <td>`+item.readtimes+`</td>
+            <td>`+item.status+`</td>
+            <td style="text-align: center;">
+              <span class="category-delete"><i class="fa fa-trash" title="删除"></i></span>
+              <span class="category-edit"><i class="fa fa-pencil" title="修改"></i></span> 
+            </td>
+          </tr>
+        `)
+        $('tbody').append(newTr)
+      })
+      $("#myPage1").sPage({
+          page:res.data.page+1,
+          pageSize:res.data.pageSize,
+          total:res.data.total,
+          prevPage:"←",
+          nextPage:"→",
+          backFun:function(page){
+            findAllArticle(page-1)
+          }
+      });
+    })
+  })
+
+  // 重置
+  $('#reset').click(function(){
+    var startTime = $('#startTime').val('');
+    var endTime = $('#endTime').val('');
+    var keywords = $('#keywords').val('');
+    findAllArticle(0);
+  })
+</script>

@@ -1,0 +1,69 @@
+/* 文章管理界面的样式 */
+/* 整体样式 */
+.article{
+  height: 100%;
+  /* 这里使用相对定位，因为下面分页要使用绝对定位固定位置 */
+  position: relative;
+}
+.article .article-header{
+  margin-bottom: 10px;
+}
+/* 子元素浮动，父元素清除浮动 */
+.article .article-header::after {
+   content: '';
+   display: block;
+   clear: both;
+}
+/* 头部左侧 */
+.article .header-left{
+  float: left;
+}
+
+/* 头部右侧 */
+.article .header-right{
+  float: right;
+  width: 700px;
+  border-bottom: none;
+  line-height: 34px;
+}
+.article .header-right *{
+  display: inline-block;
+}
+
+/* 头部右侧输入框 */
+.article .header-right input{
+  width: 200px;
+}
+
+/* 开始输入框和结束输入框 */
+#startTime, #endTime{
+  width: 120px;
+}
+
+/* 表格区域 */
+.article-content .table th,td{
+  text-align: center;
+}
+
+/* 设置操作里面两个按钮的样式 */
+.article-content .table span:first-child{
+  color: rgb(215, 84, 83);
+  margin-right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.article-content .table span:last-child{
+  color: rgb(55, 123, 181);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* 底部分页 */
+#myPage1{
+  position: absolute;
+  left: 10;
+  bottom: 0;
+}
+
+

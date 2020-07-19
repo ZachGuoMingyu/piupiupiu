@@ -1,0 +1,255 @@
+<div class="user">
+  <!-- 头部可切换导航 -->
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#admin" data-toggle="tab">管理员</a>
+    </li>
+    <li>
+      <a href="#editor" data-toggle="tab">编辑</a>
+    </li>
+    <li>
+      <a href="#member" data-toggle="tab">会员</a>
+    </li>
+  </ul>
+
+  <!-- 导航切换内容显示区域 -->
+  <div class="tab-content">
+    <div class="tab-pane fade in active" id="admin">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary" id="addUser">新增</button>
+      <div id="adminPage"></div>
+    </div>
+    <div class="tab-pane fade" id="editor">
+      <!-- 新增按钮 -->
+      <button type="button" class="btn btn-primary">新增</button>
+      <div id="editorPage"></div>
+    </div>
+    <div class="tab-pane fade" id="member">
+      <div id="userPage"></div>
+    </div>
+  </div>
+
+  <!-- 模态框 -->
+  <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">新增用户</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="username">用户名</label>
+              <input type="email" class="form-control" id="username" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="nickname">昵称</label>
+              <input type="email" class="form-control" id="nickname" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="password">密码</label>
+              <input type="password" class="form-control" id="password" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="passwordSure">确认密码</label>
+              <input type="password" class="form-control" id="passwordSure" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="email">email</label>
+              <input type="email" class="form-control" id="email" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="role">注册角色</label>
+              <select class="form-control" id="role">
+                <option value="admin">管理员</option>
+                <option value="editor">编辑</option>
+                <option value="user">用户</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" id="saveBtn">确认</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 根据角色筛选相对应的数据
+  // 1.拿到所有的数据
+  // 2.根据数据里的role字段进行数据筛选
+  // 3.把筛选完成的数据插入到对应的节点中
+  // 查询所有用户
+  findAllUser()
+  function findAllUser(){
+    myAjax('/manager/user/findAllUser','get',{},function(res){
+      $('#userPage').empty()
+      // 根据角色筛选用户
+      var admin = res.data.filter(function(item){
+        return item.role == 'admin'
+      })
+      var editor = res.data.filter(function(item){
+        return item.role == 'editor'
+      })
+      var user = res.data.filter(function(item){
+        return item.role == 'user'
+      })
+      // 根绝角色把对应数据插入到对应节点中
+      admin.forEach(function(item){
+        var newDiv = $(`
+          <div class="card">
+            <img src="`+(item.userface ? item.userface : '../../images/user.gif')+`">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div>用户名</div>
+                <div>`+item.nickname+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>真实姓名</div>
+                <div>`+item.username+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>邮箱</div>
+                <div>`+(item.email ? item.email : '--' )+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>操作</div>
+                <span class="category-delete"><i class="fa fa-trash" title="删除"></i></span>
+              <span class="category-edit"><i class="fa fa-pencil" title="修改"></i></span>
+              </li>
+            </ul>
+          </div>
+        `)
+        $('#adminPage').append(newDiv)
+      })
+
+      editor.forEach(function(item){
+        var newDiv = $(`
+          <div class="card">
+            <img src="`+(item.userface ? item.userface : '../../images/user.gif')+`">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <div>用户名</div>
+                <div>`+item.nickname+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>真实姓名</div>
+                <div>`+item.username+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>邮箱</div>
+                <div>`+ (item.email ? item.email : '--')+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>操作</div>
+                <span class="category-delete"><i class="fa fa-trash" title="删除"></i></span>
+                <span class="category-edit"><i class="fa fa-pencil" title="修改"></i></span>
+              </li>
+            </ul>
+          </div>
+        `)
+        $('#editorPage').append(newDiv)
+      })
+
+      user.forEach(function(item){
+        var newDiv = $(`
+          <div class="card">
+            <img src="`+(item.userface ? item.userface : '../../images/user.gif')+`">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" style="display:none">
+                <input type="text" value="`+item.id+`">
+              </li>
+              <li class="list-group-item">
+                <div>用户名</div>
+                <div>`+item.nickname+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>真实姓名</div>
+                <div>`+item.username+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>邮箱</div>
+                <div>`+ (item.email ? item.email : '--')+`</div>
+              </li>
+              <li class="list-group-item">
+                <div>状态</div>
+                <div class="changeStatus">`+(item.enabled ? '<button class="btn btn-info">正常</button>' : '<button class="btn btn-danger">禁言中...</button>')+`</div> 
+              </li>
+            </ul>
+          </div>
+        `)
+        $('#userPage').append(newDiv)
+      })
+    }) 
+  }
+
+  // 改变用户状态
+  $('#userPage').on('click','.changeStatus',function(){
+    var id = $(this).closest('ul').find('input').val()
+    myAjax('/manager/user/findUserById','get',{id:id},function(res){
+      if(res.data.enabled == true){
+        var obj = {
+          id:id,
+          status:false
+        }    
+        myAjax('/manager/user/changeStatus','post',obj,function(res){
+          alert(res.message)
+          findAllUser()
+        })
+      } else {
+        var obj = {
+          id:id,
+          status:true
+        }  
+        myAjax('/manager/user/changeStatus','post',obj,function(res){
+          alert(res.message)
+          findAllUser()
+        })
+      }
+    })
+  })
+
+  // 新增按钮
+  $('#addUser').click(function(){
+    $('#userModal').modal('show')
+  })
+
+  // 新增
+  $('#saveBtn').click(function(){
+    var username = $('#username').val();
+    var nickname= $('#nickname').val();
+    var password = $('#password').val();
+    var email = $('#email').val();
+    var role = $('#role').val();
+    var obj = {
+      username:username,
+      nickname:nickname,
+      password:password,
+      email:email,
+      role:role
+    }
+    myAjax('/manager/user/reg','post',obj,function(res){
+      if(res.status == 200){
+        alert(res.message)
+        findAllUser()
+        $('#userModal').modal('hide')
+      } else {
+        alert(res.message)
+      }
+    })
+  })
+  // 校验两次密码是否一致
+  $('#passwordSure').on('blur',function(){
+    var password = $('#password').val();
+    var passwordSure = $('#passwordSure').val();
+    if(password !== passwordSure){
+      alert('请确保两次输入密码一致！')
+    }
+  })
+</script>

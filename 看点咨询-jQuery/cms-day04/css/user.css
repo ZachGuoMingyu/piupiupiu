@@ -1,0 +1,39 @@
+/* 用户管理界面的样式 */
+.user{
+  height: 90%;
+  overflow: auto;
+}
+/* 设置a标签的样式 */
+.user .nav a{
+  text-decoration: none;
+  color: rgb(55, 123, 181);
+  font-size: 16px;
+}
+
+/* 设置用户显示样式 */
+.user .card{
+  width: 18rem;
+  display:inline-block;
+  margin-right:10px;
+  margin-bottom:10px;
+  text-align: center;
+}
+
+/* 设置头像 */
+.user .card img{
+  height: 100px;
+}
+
+/* 设置操作里面两个按钮的样式 */
+.category-delete{
+  color: rgb(215, 84, 83);
+  margin-right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.category-edit{
+  color: rgb(55, 123, 181);
+  font-size: 20px;
+  cursor: pointer;
+}

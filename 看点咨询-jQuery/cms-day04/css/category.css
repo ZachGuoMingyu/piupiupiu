@@ -1,0 +1,90 @@
+/* 栏目管理页面的样式 */
+/* 设置表格样式 */
+.category table th,td{
+  text-align: center;
+}
+/* 左侧树形区域 */
+.category-tree{
+  width: 160px;
+  height: 100%;
+  border: 1px solid #ccc;
+  float: left;
+}
+
+/* 右侧区域 */
+.category-content{
+  width: calc(100% - 160px);
+  height: 100%;
+  float: right;
+  padding-left: 10px;
+}
+
+/* 表格样式 */
+.category-table{
+  margin-top: 10px;
+  height: calc(100% - 34px - 10px - 10px);
+  /* 在竖直方向上的滚动条 */
+  /* overflow-y: scroll; */
+}
+/* 表列的样式 */
+.category-table-content{
+  height: calc(100% - 38px);
+  /* 在竖直方向上的滚动条 */
+  overflow-y: scroll;
+}
+/* 取消表头和表列之间的外边距 */
+.category-table .table{
+  margin-bottom: 0;
+}
+
+/* 设置每一个表头都和其对应的表列宽度相同 */
+.category-table .table th:first-child,
+.category-table .table td:first-child{
+  width: 50px; 
+}
+
+.category-table .table th:nth-child(2),
+.category-table .table td:nth-child(2){
+  width: 180px; 
+}
+
+.category-table .table th:nth-child(3),
+.category-table .table td:nth-child(3){
+  width: 200px; 
+}
+
+.category-table .table th:nth-child(4),
+.category-table .table td:nth-child(4){
+  width: 500px; 
+}
+
+.category-table .table th:last-child,
+.category-table .table td:last-child{
+  /* 最后一个宽度我们不设置 让它根据之前设置的宽度自由扩充 */
+}
+
+/* 设置操作里面两个按钮的样式 */
+.category-table .table span:first-child{
+  color: rgb(215, 84, 83);
+  margin-right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.category-table .table span:last-child{
+  color: rgb(55, 123, 181);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* 树形结构样式设置 */
+#category-tree{
+  margin-top: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: none;
+}
+
+
+

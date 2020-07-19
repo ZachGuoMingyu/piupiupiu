@@ -1,0 +1,11 @@
+/* 首页的样式 */
+.home{
+  height: 100%;
+}
+
+/* 设置成一个四宫格 */
+.home>div{
+  width: 50%;
+  height: 50%;
+  float: left;
+}
