@@ -50,6 +50,9 @@ NodeJS和浏览器并不能认识所有的ES6的新特性，虽然js版本进行
 
     项目初始化之后，我们安装项目所需的依赖
 
+
+  全局安装babel-cli （全局和局部都需要安装）
+      cnpm install -g babel-cli
   局部安装依赖
     cnpm install --save babel-cli  产品依赖，项目上线后依然需要的插件
     cnpm install --save-dev babel-cli 生产依赖，项目开发阶段需要的插件
@@ -57,6 +60,9 @@ NodeJS和浏览器并不能认识所有的ES6的新特性，虽然js版本进行
     去ppt 22页
 
     安装babel我们使用ES6-ES5升级版 PPT 25页 根据这个步骤去安装
+
+    安装完上面的局部依赖 还需安装这个 cnpm install --save-dev babel-preset-latest
+
     安装完了以后发现我的文件夹下没有node_modules 因为我把它隐藏掉了 不让vscode检索它内部文件
     node_modules 在VScode中隐藏。不让vscode检索node_modules内部的文件。在vscode设置中找到exclude，添加模式**/node_modules
 
@@ -64,9 +70,9 @@ NodeJS和浏览器并不能认识所有的ES6的新特性，虽然js版本进行
 
     配置完.babelrc文件后  在app下新建src文件夹 新建a.js文件 里面写个let a = 1 const PI = 3.14把这个文件转换一下
       
+      
     如果有同学有问题 使用不了babel命令 那么就全局安装一下
-    全局安装babel-cli
-      cnpm install -g babel-cli
+    
 
     使用babel
       babel src/a.js
