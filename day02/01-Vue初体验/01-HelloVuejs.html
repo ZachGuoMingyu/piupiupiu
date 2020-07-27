@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">{{message}}</div>
+  <script src="../js/vue.js"></script>
+  <script>
+    // 这里就不使用var来定义了  var有缺陷  没有变量作用域
+    // let(变量)/const(常量)
+    // let name = 'zach'
+    // name = 'zhangsan' let定义的是一个变量 是可以修改的
+
+    // const name = 'zach'
+    // name = 'zhangsan' const定义的是一个常量 不可以修改
+    // console.log(name)
+
+    // 编程范式：声明式编程  当我们创建vue实例的时候 我们需要这个vue实例帮助我们去管理div 我们只需要告诉div里面需要展示什么数据就可以了 不需要去考虑它的内部是怎么实现的
+    const app = new Vue({
+      // 使用vue来管理id为app的这个div，要管理元素挂载上来
+      el: '#app',
+      data: {
+        message: '你好啊，Vue！'
+      }
+    })
+
+
+    // 元素js的做法 ---- 编程范式：命令式编程
+    // 1.创建一个div元素，设置id属性
+
+    // 2.定义一个变量 message
+
+    // 3.将message变量放在前面的div中显示出来
+
+    // 4.修改message的数据： 今天天气不错
+
+    // 5.将修改的数据再次替换到div元素中
+  </script>
+</body>
+</html>

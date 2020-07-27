@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <!-- <ul>
+      <li>星际穿越</li>
+      <li>复仇者联盟</li>
+      <li>大话西游</li>
+      <li>盗梦空间</li>
+      <li>只有芸知道</li>
+    </ul> -->
+    <ul>
+      <li v-for="item in movies">{{item}}</li>
+    </ul>
+  </div>
+  <script src="../js/vue.js"></script>
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        movies: ['星际穿越','复仇者联盟','大话西游','盗梦空间','只有芸知道']
+      }
+    })
+  </script>
+</body>
+</html>
